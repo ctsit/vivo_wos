@@ -1,0 +1,5 @@
+requests
+rdflib
+
+# optional - will cache HTTP requests. Helpful for testing/debugging.
+# requests_cache
