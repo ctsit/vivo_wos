@@ -16,7 +16,7 @@ UFL = Namespace('http://vivo.ufl.edu/ontology/vivo-ufl/')
 WOS_LINK_TEXT = u"Web of Science™"
 
 
-def add_vcard_weblink(pub_uri, link):
+def add_vcard_weblink(pub_uri, link, link_prefix="pub", label=WOS_LINK_TEXT):
     """
     Build statements for weblinks in VIVO.
     :return: rdflib.Graph
@@ -25,13 +25,13 @@ def add_vcard_weblink(pub_uri, link):
     g = Graph()
 
     # vcard individual for pub
-    vci_uri = D['vcard-individual-pub-' + local_id]
+    vci_uri = D['vcard-individual-{}-{}'.format(link_prefix, local_id)]
     g.add((vci_uri, RDF.type, VCARD.Individual))
 
     # vcard URL
-    vcu_uri = D['vcard-url-pub-' + local_id]
+    vcu_uri = D['vcard-url-{}-{}'.format(link_prefix, local_id)]
     g.add((vcu_uri, RDF.type, UFL.TRCatalogLink))
-    g.add((vcu_uri, RDFS.label, Literal(WOS_LINK_TEXT)))
+    g.add((vcu_uri, RDFS.label, Literal(label)))
     g.add((vcu_uri, VCARD.url, Literal(link)))
     # Relate vcard individual to url
     g.add((vci_uri, VCARD.hasURL, vcu_uri))
@@ -53,4 +53,18 @@ def to_rdf(found):
             link_vcard_uri, lg = add_vcard_weblink(uri, link)
             g += lg
             g.add((uri, OBO['ARG_2000028'], link_vcard_uri))
+    return g
+
+
+def journal_link_rdf(found):
+    g = Graph()
+    for uri, val in found.items():
+        jcr = val.get('impactGraphURL')
+        if jcr is None:
+            continue
+        uri = URIRef(uri)
+        # Add web links
+        link_vcard_uri, lg = add_vcard_weblink(uri, jcr, link_prefix="jrnl", label="View Journal Profile in InCites™ Journal Citation Reports®")
+        g += lg
+        g.add((uri, OBO['ARG_2000028'], link_vcard_uri))
     return g
