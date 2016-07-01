@@ -21,10 +21,12 @@ def get_uri(url, delay=False):
     Will use requests_cache if available.
     """
     logging.info("Requesting: {}".format(url))
+    # remove any added ending whitespace to prevent bad requests
+    fixed_url = url.rstrip()
     g = Graph()
     try:
         rsp = requests.get(
-            url,
+            fixed_url,
             headers={'Accept': 'application/rdf+xml', 'User-Agent': USER_AGENT},
             verify=False
         )

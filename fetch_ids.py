@@ -31,6 +31,7 @@ BIBO = Namespace('http://purl.org/ontology/bibo/')
 
 
 def get_pub_ids(puri):
+    puri = puri.rstrip()
     logging.info("Processing publication uri: " + puri)
     uri = URIRef(puri)
     g = get_uri(puri)
@@ -42,6 +43,7 @@ def get_pub_ids(puri):
         pmid = g.value(subject=uri, predicate=BIBO.pmid).toPython()
     except AttributeError:
         pmid = None
+    logging.info("Pub URI: {} Pub DOI: {} PubMedID: {}".format(puri, doi, pmid))
     return dict(id=puri, doi=doi, pmid=pmid)
 
 
@@ -67,7 +69,7 @@ def get_wos_links(journal_uri):
 
 if __name__ == '__main__':
     uri = sys.argv[1]
-    
+
     g = get_wos_links(uri)
     print g.serialize(format="turtle")
 
